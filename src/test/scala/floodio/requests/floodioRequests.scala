@@ -8,16 +8,11 @@ object floodioRequests {
 
   val start = http("start")
     .get("/")
-    .headers(constants.headers_0)
-    .resources(http("request_1")
-      .get("/img/header.jpg")
-      .headers(constants.headers_1))
     .check(regex(constants.step_id_regex).find.saveAs("step_id"))
     .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
 
   val step1 = http("step1")
     .post("/start")
-    .headers(constants.headers_0)
     .formParam("utf8", "✓")
     .formParam("authenticity_token", "${authenticity_token}")
     .formParam("challenger[step_id]", "${step_id}")
@@ -28,7 +23,6 @@ object floodioRequests {
 
   val step2 = http("step2")
     .post("/start")
-    .headers(constants.headers_0)
     .formParam("utf8", "✓")
     .formParam("authenticity_token", "${authenticity_token}")
     .formParam("challenger[step_id]", "${step_id}")
@@ -42,7 +36,7 @@ object floodioRequests {
     .check(regex(constants.all_order_regex).findAll.saveAs("order_list")
     )
 
-  var extractSelectedOrder=exec(session => {
+  var extractSelectedOrder = exec(session => {
     val order = Integer.valueOf((constants.max_order_regex findFirstMatchIn session("order").as[String]).get.group(2))
     var largest_order = Integer.valueOf(session.attributes("largest_order").toString)
     var order_selected = session.attributes("order_selected").toString
@@ -57,7 +51,6 @@ object floodioRequests {
 
   val step3 = http("step3")
     .post("/start")
-    .headers(constants.headers_0)
     .formParam("utf8", "✓")
     .formParam("challenger[step_number]", "3")
     .formParam("authenticity_token", "${authenticity_token}")
@@ -72,7 +65,6 @@ object floodioRequests {
 
   val step4 = http("step4")
     .post("/start")
-    .headers(constants.headers_0)
     .formParam("utf8", "✓")
     .formParam("authenticity_token", "${authenticity_token}")
     .formParam("challenger[step_id]", "${step_id}")
@@ -82,18 +74,16 @@ object floodioRequests {
     .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
     .resources(http("request_6")
       .get("/code")
-      .headers(constants.headers_6)
-      .check(jsonPath("$..code").saveAs("one_time_token")))
+      .check(regex(constants.one_time_token_regex).find.saveAs("one_time_token"))
+      .check(bodyString.saveAs("code_json")))
 
   val step5 = http("step5")
     .post("/start")
-    .headers(constants.headers_0)
-    .header("User-Agent", "I AM ROBOT")
     .formParam("utf8", "✓")
     .formParam("authenticity_token", "${authenticity_token}")
     .formParam("challenger[step_id]", "${step_id}")
     .formParam("challenger[step_number]", "5")
-    .formParam("challenger[one_time_token]", "${one_time_token}")
+    .formParam("challenger[one_time_token]", "" + "${one_time_token}")
     .formParam("commit", "Next")
     .check(regex(constants.success_str).find)
 

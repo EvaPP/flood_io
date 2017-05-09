@@ -5,6 +5,8 @@ import floodio.scenarios.floodioScenario
 
 class floodioSimulation extends Simulation {
 
-  setUp(floodioScenario.scn.inject(atOnceUsers(1))).protocols(constants.httpProtocol)
+  val users_quantity = Integer.valueOf(System.getProperty("users"))
+
+  setUp(floodioScenario.scn.inject(atOnceUsers(users_quantity))).protocols(constants.httpProtocol)
 
 }
