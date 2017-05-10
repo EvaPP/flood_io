@@ -2,3 +2,5 @@
 For run the application use next parameters:
 -users = user's threads quantity
 -url = site url
+
+JAVA_OPTS=-Dusers=1 -Durl=challengers.flood.io -s floodio.floodioSimulation
