@@ -1,6 +1,6 @@
 package floodio.requests
 
-import floodio.constants
+import floodio.constants._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -8,8 +8,8 @@ object floodioRequests {
 
   val start = http("start")
     .get("/")
-    .check(regex(constants.step_id_regex).find.saveAs("step_id"))
-    .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
+    .check(regex(step_id_regex).find.saveAs("step_id"))
+    .check(regex(authenticity_token_regex).find.saveAs("authenticity_token"))
 
   val step1 = http("step1")
     .post("/start")
@@ -18,8 +18,8 @@ object floodioRequests {
     .formParam("challenger[step_id]", "${step_id}")
     .formParam("challenger[step_number]", "1")
     .formParam("commit", "Start")
-    .check(regex(constants.step_id_regex).find.saveAs("step_id"))
-    .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
+    .check(regex(step_id_regex).find.saveAs("step_id"))
+    .check(regex(authenticity_token_regex).find.saveAs("authenticity_token"))
 
   val step2 = http("step2")
     .post("/start")
@@ -27,22 +27,22 @@ object floodioRequests {
     .formParam("authenticity_token", "${authenticity_token}")
     .formParam("challenger[step_id]", "${step_id}")
     .formParam("challenger[step_number]", "2")
-    .formParam("challenger[age]", "21")
+    .formParam("challenger[age]", "${age}")
     .formParam("commit", "Next")
-    .check(regex(constants.step_id_regex).find.saveAs("step_id"))
-    .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
-    .check(regex(constants.orders_regex).find.saveAs("largest_order"))
-    .check(regex(constants.order_selected_regex).find.saveAs("order_selected"))
-    .check(regex(constants.all_order_regex).findAll.saveAs("order_list")
+    .check(regex(step_id_regex).find.saveAs("step_id"))
+    .check(regex(authenticity_token_regex).find.saveAs("authenticity_token"))
+    .check(regex(orders_regex).find.saveAs("largest_order"))
+    .check(regex(order_selected_regex).find.saveAs("order_selected"))
+    .check(regex(all_order_regex).findAll.saveAs("order_list")
     )
 
   var extractSelectedOrder = exec(session => {
-    val order = Integer.valueOf((constants.max_order_regex findFirstMatchIn session("order").as[String]).get.group(2))
+    val order = Integer.valueOf((max_order_regex findFirstMatchIn session("order").as[String]).get.group(2))
     var largest_order = Integer.valueOf(session.attributes("largest_order").toString)
     var order_selected = session.attributes("order_selected").toString
     if (largest_order < order.intValue()) {
       largest_order = order
-      order_selected = (constants.max_order_regex findFirstMatchIn session("order").as[String]).get.group(1)
+      order_selected = (max_order_regex findFirstMatchIn session("order").as[String]).get.group(1)
     }
     session
       .set("largest_order", largest_order)
@@ -58,10 +58,10 @@ object floodioRequests {
     .formParam("challenger[largest_order]", "${largest_order}")
     .formParam("challenger[order_selected]", "${order_selected}")
     .formParam("commit", "Next")
-    .check(regex(constants.step_id_regex).find.saveAs("step_id"))
-    .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
-    .check(regex(constants.challenger_order_regex).findAll.saveAs("challenger_orders"))
-    .check(regex(constants.challenger_order_value_regex).find.saveAs("challenger_order_value"))
+    .check(regex(step_id_regex).find.saveAs("step_id"))
+    .check(regex(authenticity_token_regex).find.saveAs("authenticity_token"))
+    .check(regex(challenger_order_regex).findAll.saveAs("challenger_orders"))
+    .check(regex(challenger_order_value_regex).find.saveAs("challenger_order_value"))
 
   val step4 = http("step4")
     .post("/start")
@@ -70,11 +70,11 @@ object floodioRequests {
     .formParam("challenger[step_id]", "${step_id}")
     .formParam("challenger[step_number]", "4")
     .formParamMap("${challenger_order_map}")
-    .check(regex(constants.step_id_regex).find.saveAs("step_id"))
-    .check(regex(constants.authenticity_token_regex).find.saveAs("authenticity_token"))
+    .check(regex(step_id_regex).find.saveAs("step_id"))
+    .check(regex(authenticity_token_regex).find.saveAs("authenticity_token"))
     .resources(http("request_6")
       .get("/code")
-      .check(regex(constants.one_time_token_regex).find.saveAs("one_time_token"))
+      .check(regex(one_time_token_regex).find.saveAs("one_time_token"))
       .check(bodyString.saveAs("code_json")))
 
   val step5 = http("step5")
@@ -85,7 +85,7 @@ object floodioRequests {
     .formParam("challenger[step_number]", "5")
     .formParam("challenger[one_time_token]", "" + "${one_time_token}")
     .formParam("commit", "Next")
-    .check(regex(constants.success_str).find)
+    .check(regex(success_str).find)
 
   val createChalangerOrderMap = exec(session => {
     val mp = collection.mutable.Map[String, String]()
